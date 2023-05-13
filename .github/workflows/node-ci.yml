@@ -1,0 +1,40 @@
+name: Node CI
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Define an environment variable for your project directory
+    env:
+      PROJECT_DIR: BookStore/Book\ Review\ application/
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Cache npm dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.PROJECT_DIR }}/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('${{ env.PROJECT_DIR }}/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - run: npm ci
+      working-directory: ${{ env.PROJECT_DIR }}
+    - run: npm run build --if-present
+      working-directory: ${{ env.PROJECT_DIR }}
+    - run: npm test --if-present
+      working-directory: ${{ env.PROJECT_DIR }}
