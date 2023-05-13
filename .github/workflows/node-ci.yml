@@ -10,13 +10,15 @@ on:
     branches: [ main, staging ]
 
 jobs:
-  build:
+  e2e:
+  
 
     runs-on: ubuntu-latest
-
+    env:
+      PROJECT_DIR: BookStore/Book\ Review\ application/
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -27,5 +29,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+      working-directory: ${{ env.PROJECT_DIR }}
     - run: npm run build --if-present
+      working-directory: ${{ env.PROJECT_DIR }}
     - run: npm test --if-present
+      working-directory: ${{ env.PROJECT_DIR }}
